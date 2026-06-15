@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>팀 미션 점수판</title>
+  <style>
+    :root{
+      --bg:#eef4ff;--bg2:#f8fbff;--card:#ffffff;--ink:#0f172a;--muted:#64748b;
+      --line:#dbe4f1;--dark:#0f172a;--primary:#2563eb;--primary2:#14b8a6;
+      --green:#059669;--amber:#d97706;--red:#e11d48;
+      --rank1:#f97316;--rank2:#0ea5e9;--rank3:#22c55e;--rank4:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;background:#f4f7fb;color:var(--ink)}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer;border:0}
+    h1,h2,h3,p{margin:0}
+    .wrap{max-width:1320px;margin:0 auto;padding:18px}
+    .top{display:flex;gap:14px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:28px;padding:16px 18px;margin-bottom:16px;box-shadow:0 10px 28px rgba(15,23,42,.08);border:1px solid rgba(255,255,255,.8)}
+    .title small{display:none!important}
+    .title h1{font-size:44px!important;font-weight:1000;line-height:1.05!important;letter-spacing:-.05em!important}
+    .title{flex:1!important}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;background:#edf3ff;padding:7px;border-radius:18px}
+    .btn{border-radius:14px;padding:11px 15px;font-weight:900;background:#fff;color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 8px rgba(15,23,42,.04);transition:.18s ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.active,.btn.dark{background:#1f2937;color:white;border-color:#0f172a}
+    .btn.green{background:#0f9f7a;color:white;border-color:#059669}
+    .btn.blue{background:#2563eb;color:white;border-color:#2563eb}
+    .btn.amber{background:#f59e0b;color:white;border-color:#d97706}
+    .btn.red{background:#e11d48;color:white;border-color:#e11d48}
+    .btn.ghost{background:#f8fbff}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns:1fr 1fr}
+    .three{grid-template-columns:repeat(3,1fr)}
+    .four{grid-template-columns:repeat(4,1fr)}
+    @media(max-width:980px){.two,.three,.four{grid-template-columns:1fr}.top{align-items:stretch;flex-direction:column}.nav{justify-content:center}}
+    .card{background:rgba(255,255,255,.94);border-radius:28px;padding:22px;box-shadow:0 10px 30px rgba(15,23,42,.07);border:1px solid rgba(219,228,241,.9)}
+    .hero{background:#f8fbff;border:1px solid #dbeafe}
+    .big{font-size:44px;font-weight:1000;letter-spacing:-.05em;line-height:1.15}
+    .learning-one-line{text-align:center;white-space:nowrap;font-size:42px;line-height:1.25;letter-spacing:-.045em}
+    @media(max-width:1100px){.learning-one-line{font-size:34px;white-space:normal}}
+    .sub{color:var(--muted);font-weight:800}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 12px;font-size:14px;font-weight:900;background:#eef2ff;color:#3730a3}
+    .pill.green{background:#d1fae5;color:#065f46}
+    .pill.amber{background:#fef3c7;color:#92400e}
+    .pill.red{background:#ffe4e6;color:#9f1239}
+    .pill.blue{background:#dbeafe;color:#1d4ed8}
+    .input{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;font-weight:800;background:white}
+    .textarea{min-height:76px;resize:vertical}
+    .label{font-size:13px;color:var(--muted);font-weight:1000;margin:0 0 6px;display:block}
+    .mission{position:relative;overflow:hidden;border-radius:24px;background:#ffffff;padding:18px;border:1px solid #e2e8f0;min-height:122px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
+    .mission::before{content:"";position:absolute;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:112px!important;height:112px!important;border-radius:26px!important;background:#eaf4ff!important;opacity:.78!important;pointer-events:none}
+    .mission-content{position:relative;z-index:2;display:flex;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;text-align:left!important;min-height:104px!important}
+    .mission-figure{position:absolute;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:136px!important;height:136px!important;opacity:.11!important;z-index:1;pointer-events:none;color:#2563eb!important}
+    .mission-text{max-width:calc(100% - 106px)!important;padding-left:0!important;text-align:left!important}
+    .mission h3{font-size:22px!important;font-weight:1000;line-height:1.25!important;text-align:left!important;word-break:keep-all!important}
+    .mission .sub{text-align:left!important;margin-top:6px!important;font-size:14px!important;line-height:1.35!important}
+    .mission .score-badge{position:relative!important;left:auto!important;top:auto!important;right:auto!important;margin:0!important;flex:0 0 auto!important;min-width:82px!important;font-size:23px!important;z-index:3!important}
+    .rank-1{border-left:10px solid #f97316}
+    .rank-2{border-left:10px solid #0ea5e9}
+    .rank-3{border-left:10px solid #22c55e}
+    .rank-4,.rank-other{border-left:10px solid #8b5cf6}
+    .score-badge{background:#1f2937;color:white;border-radius:18px;padding:10px 14px;font-size:26px;font-weight:1000;min-width:78px;text-align:center;box-shadow:0 8px 20px rgba(15,23,42,.18)}
+    .barBox{height:30px;background:#eef2ff;border-radius:999px;overflow:hidden;border:1px solid #e2e8f0}
+    .bar{height:100%;border-radius:999px;transition:.25s;box-shadow:inset 0 -2px 0 rgba(255,255,255,.35)}
+    .rank-card{background:#ffffff;border-radius:24px;padding:16px;border:1px solid #e2e8f0}
+    .rank-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:10px}
+    .rank-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:14px;padding:8px 10px;font-size:14px;font-weight:1000;color:white;min-width:56px}
+    .rank-name{font-size:28px;font-weight:1000}
+    .rank-score{font-size:46px;font-weight:1000;min-width:150px;text-align:right}
+    @media(max-width:900px){.rank-score{min-width:auto;text-align:left}}
+    .qmark{font-size:54px;color:var(--muted)}
+    .rank-1 .rank-badge{background:#f97316}
+    .rank-2 .rank-badge{background:#0ea5e9}
+    .rank-3 .rank-badge{background:#22c55e}
+    .rank-4 .rank-badge,.rank-other .rank-badge{background:#8b5cf6}
+    .table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    .table th{font-size:14px;text-align:left;color:var(--muted);padding:0 10px}
+    .table td{background:#f1f5f9;padding:14px 10px;font-weight:900}
+    .table td:first-child{border-radius:14px 0 0 14px}.table td:last-child{border-radius:0 14px 14px 0}
+    .center{text-align:center}
+    .stageBanner{padding:16px 18px;border-radius:20px;background:#eaf4ff;color:#155e75;font-weight:1000;font-size:22px;border:1px solid #bae6fd}
+    .padBtn{width:100%;min-height:178px!important;position:relative!important;overflow:hidden!important;background:#ffffff;border:1px solid var(--line);border-radius:28px;padding:18px!important;text-align:left!important;display:block!important;box-shadow:0 8px 20px rgba(15,23,42,.05)}
+    .padBtn:active{transform:scale(.98)}
+    .padBtn:disabled{opacity:.45;cursor:not-allowed}
+    .padBtn .mission-figure{left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:170px!important;height:170px!important;opacity:.10!important;color:#2563eb!important}
+    .pad-card-content{position:relative;z-index:2;min-height:136px;display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%}
+    .pad-text{text-align:left;max-width:calc(100% - 110px)}
+    .pad-text h2{margin:0;font-size:34px!important;line-height:1.18;font-weight:1000;text-align:left!important;word-break:keep-all}
+    .pad-text p{margin-top:8px;font-size:17px!important;font-weight:700;color:#64748b;text-align:left!important}
+    .pad-text .pill{margin-top:10px}
+    .padBtn .score-badge{flex:0 0 auto;min-width:94px!important;font-size:30px!important;z-index:3!important}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#020617;color:white;border-radius:24px;padding:16px 24px;text-align:center;font-weight:1000;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:20;display:none}
+    .smallList{display:grid;gap:8px;max-height:310px;overflow:auto}
+    .log{display:flex;justify-content:space-between;gap:10px;background:#f1f5f9;border-radius:16px;padding:10px 12px;font-weight:800}
+    .hide{display:none!important}
+    .hint{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:18px;padding:13px 15px;font-weight:800}
+    .qrline{font-family:ui-monospace,monospace;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:9px;margin-top:6px;font-size:13px}
+    .teach-section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
+    .screenLabel{position:fixed;right:16px;bottom:16px;background:rgba(15,23,42,.85);color:white;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:900;z-index:10}
+    .intro-hero{background:#eef6ff;border:2px solid #bfdbfe;box-shadow:0 10px 28px rgba(37,99,235,.10)}
+    .intro-card{background:#ffffff;border-top:8px solid #2563eb;padding:18px!important}
+    .intro-card h2{font-size:36px!important;text-align:center!important;margin-bottom:4px!important}
+    .role-card{background:#f0fdfa;border:2px solid #99f6e4}
+    .finish-hero{background:#fff7ed;border:2px solid #fed7aa;box-shadow:0 10px 28px rgba(249,115,22,.10)}
+    .prediction-card{background:#ffffff;border-top:8px solid #f97316}
+    .actual-score{background:#eaf6ff!important;color:#075985!important;border-top:2px solid #cfe9ff!important;border-bottom:2px solid #cfe9ff!important;font-size:24px}
+    .predicted-score{background:#fffef8!important;color:#7c5a16!important;border-top:2px solid #f7edc7!important;border-bottom:2px solid #f7edc7!important;font-size:24px}
+    .difference-cell{background:#f8fafc!important;color:#374151!important;border-top:2px solid #e5e7eb!important;border-bottom:2px solid #e5e7eb!important;font-size:24px}
+    .team-cell{background:#f8fafc!important;font-size:22px}
+    .finish-point{background:#eff6ff;border:1px solid #bfdbfe;border-radius:22px;padding:18px}
+    .diff-ok{display:inline-flex;align-items:center;justify-content:center;min-width:74px;padding:7px 12px;border-radius:999px;background:#dcfce7;color:#166534;font-weight:1000}
+    .diff-bad{display:inline-flex;align-items:center;justify-content:center;min-width:92px;padding:7px 12px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-weight:1000}
+    .introList li,.reflectList li{font-size:22px;font-weight:800;line-height:1.8}
+    .intro-mission-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:10px!important;width:100%!important}
+    .intro-mission{display:block!important;position:relative!important;text-align:left!important;min-height:124px!important;padding:13px 16px!important}
+    .intro-mission h3{font-size:24px!important;line-height:1.22!important}
+    .intro-mission .sub{font-size:15px!important}
+    .intro-mission .score-badge{min-width:78px!important;font-size:22px!important}
+    .score-stage-grid{grid-template-columns:1fr .92fr!important;gap:14px!important;align-items:start!important}
+    .score-side-grid{gap:12px!important}
+    .score-head-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .score-status-wrap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .score-team-card .big{font-size:36px!important;line-height:1.1!important}
+    .score-team-card .grid{gap:9px!important}
+    .score-team-card .rank-card{padding:10px 12px!important;border-radius:18px!important}
+    .score-team-card .rank-head{margin-bottom:7px!important}
+    .score-team-card .rank-name{font-size:23px!important}
+    .score-team-card .rank-score{font-size:32px!important;min-width:104px!important}
+    .score-team-card .barBox{height:20px!important}
+    .score-mission-card h2,.score-log-card h2{font-size:27px!important;margin-bottom:8px!important}
+    .score-mission-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:8px!important}
+    .activity-mission{display:block!important;position:relative!important;min-height:108px!important;padding:12px 14px!important}
+    .activity-mission .mission-content{min-height:76px!important;gap:10px!important}
+    .activity-mission .mission-text{max-width:calc(100% - 82px)!important}
+    .activity-mission h3{font-size:20px!important;line-height:1.2!important}
+    .activity-mission .sub{font-size:13px!important;line-height:1.25!important;margin-top:5px!important}
+    .activity-mission .score-badge{min-width:70px!important;font-size:20px!important}
+    .score-log-card .smallList{max-height:none!important;overflow:visible!important;gap:7px!important}
+    .score-log-card .log{padding:8px 10px!important;border-radius:14px!important}
+    .teacher-stage-grid .btn{background:#ffffff!important;color:#0f172a!important;border:1px solid #cbd5e1!important}
+    .teacher-stage-grid .btn:hover{background:#f8fafc!important}
+    .teacher-plain-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;padding:16px}
+    @media(max-width:900px){.title h1{font-size:34px!important}.score-stage-grid{grid-template-columns:1fr!important}.score-mission-grid{grid-template-columns:1fr!important}.intro-mission-grid{grid-template-columns:1fr!important}.score-team-card .rank-score{min-width:auto!important}.pad-text h2{font-size:26px}}
+
+    /* ── 로딩 / 설정 오버레이 ── */
+    .overlay{position:fixed;inset:0;background:rgba(15,23,42,.82);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+    .overlay-box{background:white;border-radius:32px;padding:36px 40px;max-width:640px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+    .overlay-box h2{font-size:30px;font-weight:1000;margin-bottom:6px}
+    .overlay-box p{color:#475569;font-weight:700;margin-top:8px;line-height:1.6}
+    .step{display:flex;gap:14px;align-items:flex-start;margin-top:18px}
+    .step-num{background:#2563eb;color:white;border-radius:14px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:17px;flex-shrink:0;margin-top:2px}
+    .step-body h3{font-size:17px;font-weight:1000;margin:0 0 2px}
+    .step-body p{margin:0;font-size:14px;color:#64748b;font-weight:700}
+    .code-block{background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:14px 16px;font-family:ui-monospace,monospace;font-size:13px;margin-top:14px;line-height:1.9;color:#1e3a5f;word-break:break-all}
+    .conn-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:900;background:#d1fae5;color:#065f46;transition:.3s}
+  </style>
+</head>
+<body>
+
+<!-- 로딩 오버레이 -->
+<div class="overlay" id="loadingOverlay" style="display:flex">
+  <div class="overlay-box" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">📡</div>
+    <h2>Firebase에 연결 중…</h2>
+    <p>잠시만 기다려 주세요.</p>
+  </div>
+</div>
+
+<!-- Firebase 미설정 안내 오버레이 -->
+<div class="overlay" id="setupOverlay">
+  <div class="overlay-box" style="max-width:680px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:40px;margin-bottom:8px">⚙️</div>
+    <h2>Firebase 설정이 필요합니다</h2>
+    <p>이 파일을 텍스트 편집기(메모장, VS Code 등)로 열어 아래 순서대로 설정하면 6대 기기가 실시간으로 연동됩니다.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Firebase 콘솔 접속</h3>
+        <p><strong>console.firebase.google.com</strong> → Google 계정으로 로그인 → <strong>프로젝트 만들기</strong></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Realtime Database 활성화</h3>
+        <p>왼쪽 메뉴 → <strong>빌드 → Realtime Database</strong> → <strong>데이터베이스 만들기</strong> → 위치: 아시아(싱가포르) → <strong>테스트 모드로 시작</strong></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>웹 앱 등록 &amp; 설정값 복사</h3>
+        <p>프로젝트 개요 → 톱니바퀴 → <strong>프로젝트 설정</strong> → 하단 <strong>내 앱 → 웹(&lt;/&gt;)</strong> → 앱 닉네임 입력 → <strong>앱 등록</strong><br>그러면 아래와 같은 코드 블록이 나타납니다. 값들을 복사하세요.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+const firebaseConfig = {<br>
+&nbsp;&nbsp;apiKey: "<span style="color:#2563eb">여기에 복사</span>",<br>
+&nbsp;&nbsp;authDomain: "<span style="color:#2563eb">여기에 복사</span>",<br>
+&nbsp;&nbsp;<strong>databaseURL: "<span style="color:#e11d48">여기에 복사 ← 필수</span>",</strong><br>
+&nbsp;&nbsp;projectId: "<span style="color:#2563eb">여기에 복사</span>",<br>
+&nbsp;&nbsp;storageBucket: "<span style="color:#2563eb">여기에 복사</span>",<br>
+&nbsp;&nbsp;messagingSenderId: "<span style="color:#2563eb">여기에 복사</span>",<br>
+&nbsp;&nbsp;appId: "<span style="color:#2563eb">여기에 복사</span>"<br>
+};
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>이 HTML 파일에 붙여넣기</h3>
+        <p>이 파일을 텍스트 편집기로 열어 스크립트 상단 <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">firebaseConfig</code> 부분에 복사한 값을 붙여넣고 저장하세요.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>각 기기에서 URL로 접속</h3>
+        <p>교사용: <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?mode=teacher</code> &nbsp;│&nbsp; 공용 TV: <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?mode=display</code><br>
+        팀 패드: <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?team=1</code> &nbsp; <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?team=2</code> &nbsp; <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?team=3</code> &nbsp; <code style="background:#f1f5f9;padding:2px 6px;border-radius:6px">?team=4</code></p>
+      </div>
+    </div>
+    <p style="margin-top:20px;background:#fef3c7;border:1px solid #fde68a;border-radius:14px;padding:13px;font-size:14px;color:#92400e">
+      💡 파일을 학교 서버나 GitHub Pages에 올리면 모든 기기가 같은 URL로 접속할 수 있습니다.
+    </p>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="title"><small></small><h1 id="appTitle">팀 미션 점수판</h1></div>
+    <nav class="nav" id="mainNav">
+      <button class="btn" data-mode="display">공용 TV</button>
+      <button class="btn" data-mode="pad">팀 패드</button>
+      <button class="btn" data-mode="teacher">교사용</button>
+    </nav>
+    <span class="conn-badge" id="connBadge">● 연결 중</span>
+  </header>
+
+  <section id="displayView" class="grid"></section>
+  <section id="padView" class="grid"></section>
+  <section id="teacherView" class="grid"></section>
+</div>
+<div class="toast" id="toast"></div>
+<div class="screenLabel" id="screenLabel"></div>
+
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ================================================================
+// ⚙️  Firebase 설정값을 아래에 입력하세요
+//     Firebase 콘솔 → 프로젝트 설정 → 내 앱 → 설정값 복사
+// ================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyD95Idblwy5enkL4PKfO2Ke1x6IA_KV7n8",
+  authDomain: "class-pe.firebaseapp.com",
+  databaseURL: "https://class-pe-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "class-pe",
+  storageBucket: "class-pe.firebasestorage.app",
+  messagingSenderId: "305730330203",
+  appId: "1:305730330203:web:3ec560e7fba7cd76bb697e"
+};
+// ================================================================
+
+const DB_PATH = "scoreboard_v1";
+const params = new URLSearchParams(location.search);
+let mode = params.get("mode") || (params.get("team") ? "pad" : "display");
+let fixedTeam = params.get("team");
+let activeTeam = fixedTeam || "1";
+
+const defaultState = {
+  stage: "intro",
+  running: false,
+  showScores: true,
+  revealPrediction: false,
+  title: "팀 미션 점수판",
+  learningProblem: "움직임 기술을 수행하여 팀 점수를 쌓고, 점수를 계산하여 팀 전략을 세워 보자.",
+  introQuestion: "점수가 높은 동작만 선택하면 무조건 유리할까?",
+  teams: [
+    {id:"1", name:"1팀", score:0, predicted:""},
+    {id:"2", name:"2팀", score:0, predicted:""},
+    {id:"3", name:"3팀", score:0, predicted:""},
+    {id:"4", name:"4팀", score:0, predicted:""},
+  ],
+  missions: [
+    {id:"m1", name:"제자리점프 5회",      score:2, level:"쉬움",  hint:"빠르게 여러 번 성공 가능",   icon:"jump"},
+    {id:"m2", name:"팔벌려뛰기 10회",     score:3, level:"보통",  hint:"점수와 성공률의 균형",       icon:"jack"},
+    {id:"m3", name:"한 발 균형잡기 10초", score:4, level:"보통",  hint:"시간은 걸리지만 점수 높음",  icon:"balance"},
+    {id:"m4", name:"이동+점프+착지 연결동작", score:5, level:"어려움", hint:"성공하면 큰 점수",     icon:"move"},
+  ],
+  history: []
+};
+
+let state = structuredClone(defaultState);
+let stateRef = null;
+
+// ── Firebase 배열/객체 변환 ──────────────────────────────────────
+function mergeFromFirebase(data) {
+  const result = {...defaultState, ...data};
+  ["history","teams","missions"].forEach(key => {
+    if (data[key] && !Array.isArray(data[key]) && typeof data[key] === "object") {
+      result[key] = Object.values(data[key]);
+    }
+  });
+  // teams/missions 순서 보장
+  if (result.teams) result.teams.sort((a,b) => String(a.id).localeCompare(String(b.id)));
+  return result;
+}
+
+function isConfigured() {
+  return !!(firebaseConfig.databaseURL && firebaseConfig.databaseURL.trim());
+}
+
+function setConnStatus(connected) {
+  const badge = document.getElementById("connBadge");
+  if (!badge) return;
+  badge.textContent = connected ? "● 연결됨" : "○ 연결 끊김";
+  badge.style.background = connected ? "#d1fae5" : "#fee2e2";
+  badge.style.color = connected ? "#065f46" : "#991b1b";
+}
+
+function initFirebase() {
+  if (!isConfigured()) {
+    document.getElementById("loadingOverlay").style.display = "none";
+    document.getElementById("setupOverlay").style.display = "flex";
+    return;
+  }
+
+  try {
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    stateRef = db.ref(DB_PATH);
+
+    // 연결 상태 모니터링
+    db.ref(".info/connected").on("value", snap => setConnStatus(snap.val() === true));
+
+    // 실시간 상태 동기화
+    stateRef.on("value", snapshot => {
+      document.getElementById("loadingOverlay").style.display = "none";
+      const data = snapshot.val();
+      if (data) {
+        state = mergeFromFirebase(data);
+      }
+      renderAll();
+    }, err => {
+      document.getElementById("loadingOverlay").style.display = "none";
+      document.getElementById("connBadge").textContent = "⚠ 오류";
+      document.getElementById("connBadge").style.background = "#fee2e2";
+      document.getElementById("connBadge").style.color = "#991b1b";
+      console.error("Firebase 오류:", err);
+    });
+
+  } catch(e) {
+    document.getElementById("loadingOverlay").style.display = "none";
+    alert("Firebase 초기화 오류: " + e.message + "\n\nfirebaseConfig 값을 다시 확인해 주세요.");
+  }
+}
+
+// ── 저장 ─────────────────────────────────────────────────────────
+function save() {
+  if (stateRef) {
+    stateRef.set(state);
+  }
+  renderAll();
+}
+
+// ── 유틸 ─────────────────────────────────────────────────────────
+function toast(msg, sub="") {
+  const el = document.getElementById("toast");
+  el.innerHTML = `<div>${msg}</div>${sub ? `<small style="color:#cbd5e1">${sub}</small>` : ""}`;
+  el.style.display = "block";
+  clearTimeout(window.__toast);
+  window.__toast = setTimeout(() => el.style.display = "none", 1500);
+}
+
+function setMode(m) { mode = m; renderAll(); }
+
+function setStage(stage) {
+  state.stage = stage;
+  if (stage === "intro")   { state.running = false; state.showScores = true;  state.revealPrediction = false; }
+  if (stage === "score")   { state.running = true;  state.showScores = true;  state.revealPrediction = false; }
+  if (stage === "predict") { state.running = false; state.showScores = false; state.revealPrediction = false; }
+  save();
+}
+
+function getTeam(id) { return state.teams.find(t => t.id === id) || state.teams[0]; }
+function maxScore() { return Math.max(1, ...state.teams.map(t => t.score)); }
+function sortedTeams() { return [...state.teams].sort((a,b) => b.score - a.score || a.id.localeCompare(b.id)); }
+
+function addScore(teamId, mission) {
+  if (!state.running) { toast("입력할 수 없습니다", "교사용 화면에서 활동을 시작하세요."); return; }
+  const team = getTeam(teamId);
+  team.score += Number(mission.score) || 0;
+  const now = new Date().toLocaleTimeString("ko-KR", {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  state.history.unshift({id: Date.now() + Math.random(), teamId, teamName: team.name, missionId: mission.id, missionName: mission.name, score: Number(mission.score)||0, time: now, stage: state.stage});
+  state.history = state.history.slice(0, 60);
+  save();
+  toast(`${team.name} +${mission.score}점`, mission.name);
+}
+
+function undo() {
+  const last = state.history.shift();
+  if (!last) { toast("취소할 입력이 없습니다"); return; }
+  const team = getTeam(last.teamId);
+  team.score = Math.max(0, team.score - last.score);
+  save();
+  toast("마지막 입력을 취소했습니다", `${team.name} -${last.score}점`);
+}
+
+function resetAll() {
+  if (!confirm("모든 점수와 예측값을 초기화할까요?")) return;
+  state.teams.forEach(t => { t.score = 0; t.predicted = ""; });
+  state.history = [];
+  state.running = false;
+  state.stage = "intro";
+  state.showScores = true;
+  state.revealPrediction = false;
+  save();
+  toast("전체 초기화 완료");
+}
+
+function diffCellContent(team) {
+  const p = Number(team.predicted);
+  if (Number.isNaN(p) || team.predicted === "") return "-";
+  const d = team.score - p;
+  if (d === 0) return '<span class="diff-ok">정확</span>';
+  return `<span class="diff-bad">${Math.abs(d)}점 차이</span>`;
+}
+
+function escapeHtml(v) {
+  return String(v ?? "").replace(/[&<>"]/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[s]));
+}
+function escapeAttr(v) { return escapeHtml(v).replace(/'/g, "&#39;"); }
+
+// ── 아이콘 ────────────────────────────────────────────────────────
+function missionIcon(icon) {
+  const c = 'fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"';
+  if (icon==="jump")    return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="62" cy="20" r="8"/><path d="M60 30L56 48L72 58"/><path d="M56 48L40 60"/><path d="M56 50L68 72"/><path d="M68 72L92 80"/><path d="M56 72L40 94"/><path d="M92 92H20"/></g></svg>`;
+  if (icon==="jack")    return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="60" cy="18" r="8"/><path d="M60 28L60 56"/><path d="M60 36L30 52"/><path d="M60 36L90 52"/><path d="M60 56L38 92"/><path d="M60 56L82 92"/></g></svg>`;
+  if (icon==="balance") return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="60" cy="18" r="8"/><path d="M60 28L60 56"/><path d="M60 36L28 48"/><path d="M60 38L88 44"/><path d="M60 56L44 84"/><path d="M60 56L78 98"/><path d="M78 98H98"/></g></svg>`;
+  return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="40" cy="20" r="8"/><path d="M40 30L36 50L54 62"/><path d="M36 50L20 60"/><path d="M54 62L72 76"/><path d="M72 76L94 64"/><path d="M72 76L86 98"/><path d="M18 102H104"/></g></svg>`;
+}
+
+function missionCard(m, variant="activity-mission") {
+  return `
+  <div class="mission ${variant}">
+    ${missionIcon(m.icon||"move")}
+    <div class="mission-content">
+      <div class="mission-text">
+        <h3>${escapeHtml(m.name)}</h3>
+        <div class="sub">${escapeHtml(m.level)} · ${escapeHtml(m.hint||"")}</div>
+      </div>
+      <div class="score-badge">+${m.score}</div>
+    </div>
+  </div>`;
+}
+
+function rankStyle(i) {
+  if (i===0) return {cls:"rank-1", color:"#f97316"};
+  if (i===1) return {cls:"rank-2", color:"#0ea5e9"};
+  if (i===2) return {cls:"rank-3", color:"#22c55e"};
+  return {cls:"rank-4", color:"#8b5cf6"};
+}
+
+function rankCard(t, i, mx) {
+  const r = rankStyle(i);
+  return `
+  <div class="rank-card ${r.cls}">
+    <div class="rank-head">
+      <div>
+        <span class="rank-badge">${i+1}위</span>
+        <div class="rank-name">${escapeHtml(t.name)}</div>
+      </div>
+      <div class="rank-score ${state.showScores?"":"qmark"}">${state.showScores ? t.score+"점" : "?"}</div>
+    </div>
+    <div class="barBox"><div class="bar" style="width:${state.showScores ? Math.max(6,(t.score/mx)*100) : 10}%;background:${r.color}"></div></div>
+  </div>`;
+}
+
+function logRow(x) {
+  return `<div class="log"><span>${escapeHtml(x.teamName)} · ${escapeHtml(x.missionName)}</span><span>+${x.score}</span></div>`;
+}
+
+// ── 공용 TV 렌더 ──────────────────────────────────────────────────
+function renderDisplay() {
+  const el = document.getElementById("displayView");
+  if (mode !== "display") { el.classList.add("hide"); return; }
+  el.classList.remove("hide");
+
+  if (state.stage === "intro") {
+    el.innerHTML = `
+      <div class="card intro-hero"><div class="sub" style="text-align:center;font-size:18px">오늘의 배움문제</div><div class="big learning-one-line" style="margin-top:10px">${escapeHtml(state.learningProblem)}</div></div>
+      <div class="card intro-card">
+        <h2 class="big">오늘의 동작 카드</h2>
+        <div class="grid intro-mission-grid">${state.missions.map(m => missionCard(m, "intro-mission")).join("")}</div>
+      </div>
+      <div class="card role-card">
+        <div class="stageBanner">${escapeHtml(state.introQuestion)}</div>
+        <div style="height:14px"></div>
+        <div class="hint">점수, 난이도, 성공 가능성을 함께 생각해 봅시다.</div>
+      </div>`;
+
+  } else if (state.stage === "score") {
+    const ranked = sortedTeams(), mx = maxScore();
+    el.innerHTML = `
+      <div class="grid two score-stage-grid">
+        <div class="card score-team-card">
+          <div class="score-head-row">
+            <h2 class="big">팀별 점수</h2>
+            <div class="score-status-wrap">
+              <span class="pill ${state.running?"green":"red"}">${state.running?"활동 중":"입력 정지"}</span>
+              <span class="pill ${state.showScores?"green":"amber"}">${state.showScores?"점수 공개":"점수 비공개"}</span>
+            </div>
+          </div>
+          <div class="grid" style="margin-top:8px">${ranked.map((t,i) => rankCard(t,i,mx)).join("")}</div>
+        </div>
+        <div class="grid score-side-grid">
+          <div class="card score-mission-card">
+            <h2 style="font-size:30px;font-weight:1000">오늘의 동작 카드</h2>
+            <div class="grid score-mission-grid">${state.missions.map(m => missionCard(m,"activity-mission")).join("")}</div>
+          </div>
+          <div class="card score-log-card">
+            <h2 style="font-size:30px;font-weight:1000">최근 성공 기록</h2>
+            <div class="smallList" style="margin-top:8px">${state.history.slice(0,5).map(logRow).join("") || '<p class="sub">아직 기록이 없습니다.</p>'}</div>
+          </div>
+        </div>
+      </div>`;
+
+  } else {
+    el.innerHTML = `
+      <div class="card finish-hero"><div class="sub" style="font-size:18px">마무리 점수 확인</div><div class="big" style="text-align:center">예상 점수와 실제 점수를 비교해 봅시다</div><p class="sub" style="font-size:20px;margin-top:8px;text-align:center">차이가 있다면 왜 차이가 났을까요?</p></div>
+      <div class="card prediction-card"><table class="table"><thead><tr><th>팀</th><th class="center">예상 점수</th><th class="center">실제 점수</th><th class="center">차이</th></tr></thead><tbody>${state.teams.map(t => `<tr><td class="team-cell">${escapeHtml(t.name)}</td><td class="center predicted-score">${t.predicted===""?"-":escapeHtml(t.predicted)+"점"}</td><td class="center actual-score">${state.revealPrediction ? t.score+"점" : "?"}</td><td class="center difference-cell">${state.revealPrediction ? diffCellContent(t) : "?"}</td></tr>`).join("")}</tbody></table></div>
+      <div class="grid two">
+        <div class="card finish-point"><h2 style="font-size:30px;font-weight:1000">생각할 점</h2><ul class="reflectList"><li>빠뜨린 성공 기록은 없나요?</li><li>같은 점수를 두 번 더하지 않았나요?</li><li>우리 팀 전략은 효과적이었나요?</li></ul></div>
+        <div class="card finish-point"><h2 style="font-size:30px;font-weight:1000">전략 돌아보기</h2><p style="font-size:28px;font-weight:1000;margin-top:18px">어떤 동작 전략이 가장 효율적이었나요?</p></div>
+      </div>`;
+  }
+}
+
+// ── 팀 패드 렌더 ──────────────────────────────────────────────────
+function padButton(team, m) {
+  const mJson = escapeAttr(JSON.stringify(m));
+  return `
+  <button class="padBtn" ${state.running?"":"disabled"} onclick='addScore("${team.id}", ${JSON.stringify(m)})'>
+    ${missionIcon(m.icon||"move")}
+    <div class="pad-card-content">
+      <div class="pad-text">
+        <h2>${escapeHtml(m.name)}</h2>
+        <p>${escapeHtml(m.hint||"")}</p>
+        <span class="pill blue">${escapeHtml(m.level)}</span>
+      </div>
+      <span class="score-badge">+${m.score}</span>
+    </div>
+  </button>`;
+}
+
+function renderPad() {
+  const el = document.getElementById("padView");
+  if (mode !== "pad") { el.classList.add("hide"); return; }
+  el.classList.remove("hide");
+  const team = getTeam(activeTeam);
+  el.innerHTML = `
+    <div class="card hero">
+      <div class="sub">팀 패드 화면</div>
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        <div><div class="big">${escapeHtml(team.name)}</div><p class="sub" style="font-size:18px">성공한 동작을 선택하세요.</p></div>
+        <div class="score-badge" style="font-size:40px;min-width:160px">${state.showScores ? team.score+"점" : "?"}</div>
+      </div>
+      ${!state.showScores ? '<p class="hint" style="margin-top:12px">지금은 총점이 가려져 있습니다. 활동지에 성공 횟수와 점수를 직접 기록하세요.</p>' : ""}
+    </div>
+    ${fixedTeam?"":
+      `<div class="grid four">${state.teams.map(t => `<button class="btn ${activeTeam===t.id?"dark":""}" onclick="activeTeam='${t.id}';renderAll()">${escapeHtml(t.name)}</button>`).join("")}</div>`}
+    <div class="grid two">${state.missions.map(m => padButton(team, m)).join("")}</div>
+    <div class="card">
+      <h2 style="font-size:26px;font-weight:1000">우리 팀 최근 입력</h2>
+      <div class="smallList" style="margin-top:12px">${state.history.filter(h=>h.teamId===team.id).slice(0,8).map(logRow).join("") || '<p class="sub">아직 입력 기록이 없습니다.</p>'}</div>
+    </div>`;
+}
+
+// ── 교사용 렌더 ───────────────────────────────────────────────────
+function renderTeacher() {
+  const el = document.getElementById("teacherView");
+  if (mode !== "teacher") { el.classList.add("hide"); return; }
+  el.classList.remove("hide");
+
+  const baseUrl = location.href.split("?")[0];
+
+  el.innerHTML = `
+    <div class="grid two">
+      <div class="card">
+        <h2 class="big">수업 단계</h2>
+        <div class="grid teacher-stage-grid" style="margin-top:14px">
+          <button class="btn" onclick="setStage('intro')">1. 수업 초반 화면</button>
+          <button class="btn" onclick="state.running=true;state.showScores=true;state.stage='score';save()">2. 활동 1 시작 · 점수 공개</button>
+          <button class="btn" onclick="state.running=false;state.showScores=true;state.stage='score';save()">3. 전략 타임 · 입력 정지</button>
+          <button class="btn" onclick="if(confirm('활동 2를 시작하고 점수를 가릴까요?')){state.running=true;state.showScores=false;state.stage='score';save()}">4. 활동 2 시작 · 점수 비공개</button>
+          <button class="btn" onclick="state.running=false;state.stage='predict';state.showScores=false;state.revealPrediction=false;save()">5. 마무리 · 예측 점수 비교</button>
+          <button class="btn" onclick="state.revealPrediction=true;state.showScores=true;state.stage='predict';save()">실제 점수 공개</button>
+        </div>
+        <div class="teach-section grid two">
+          <button class="btn" onclick="undo()">마지막 입력 취소</button>
+          <button class="btn red" onclick="resetAll()">전체 초기화</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="big">화면 문구 설정</h2>
+        <label class="label">배움문제</label>
+        <textarea class="input textarea" oninput="state.learningProblem=this.value;save()">${escapeHtml(state.learningProblem)}</textarea>
+        <label class="label" style="margin-top:12px">도입 발문</label>
+        <input class="input" value="${escapeAttr(state.introQuestion)}" oninput="state.introQuestion=this.value;save()">
+      </div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h2 style="font-size:30px;font-weight:1000">팀 설정 및 예상 점수</h2>
+        <div class="grid two" style="margin-top:14px">
+          ${state.teams.map(t=>`
+          <div class="teacher-plain-card">
+            <label class="label">팀 이름</label>
+            <input class="input" value="${escapeAttr(t.name)}" oninput="getTeam('${t.id}').name=this.value;save()">
+            <label class="label" style="margin-top:10px">예상 점수</label>
+            <input class="input" type="number" value="${escapeAttr(t.predicted)}" oninput="getTeam('${t.id}').predicted=this.value;save()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+              <button class="btn" onclick="getTeam('${t.id}').score=Math.max(0,getTeam('${t.id}').score-1);save()">−1</button>
+              <strong style="font-size:26px">${t.score}점</strong>
+              <button class="btn" onclick="getTeam('${t.id}').score++;save()">+1</button>
+            </div>
+          </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:30px;font-weight:1000">동작 카드 설정</h2>
+        <div class="grid" style="margin-top:14px">
+          ${state.missions.map((m,idx)=>`
+          <div class="teacher-plain-card">
+            <div class="grid" style="grid-template-columns:1fr 90px 110px;gap:8px">
+              <input class="input" value="${escapeAttr(m.name)}" oninput="state.missions[${idx}].name=this.value;save()">
+              <input class="input" type="number" value="${m.score}" oninput="state.missions[${idx}].score=Number(this.value)||0;save()">
+              <select class="input" onchange="state.missions[${idx}].level=this.value;save()">
+                <option ${m.level==="쉬움"?"selected":""}>쉬움</option>
+                <option ${m.level==="보통"?"selected":""}>보통</option>
+                <option ${m.level==="어려움"?"selected":""}>어려움</option>
+              </select>
+            </div>
+            <label class="label" style="margin-top:8px">전략 힌트</label>
+            <input class="input" value="${escapeAttr(m.hint||"")}" oninput="state.missions[${idx}].hint=this.value;save()">
+          </div>`).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:30px;font-weight:1000">📱 기기별 URL</h2>
+      <p class="sub" style="margin-bottom:12px">각 기기에서 아래 주소로 접속하거나 QR 코드를 만들어 배포하세요.</p>
+      <div class="grid two">
+        <div>
+          <div class="qrline">🖥️ 공용 TV &nbsp;→&nbsp; <strong>${baseUrl}?mode=display</strong></div>
+          <div class="qrline">👩‍🏫 교사용 &nbsp;→&nbsp; <strong>${baseUrl}?mode=teacher</strong></div>
+        </div>
+        <div>
+          ${state.teams.map(t=>`<div class="qrline">📱 ${escapeHtml(t.name)} 패드 &nbsp;→&nbsp; <strong>${baseUrl}?team=${t.id}</strong></div>`).join("")}
+        </div>
+      </div>
+      <p class="hint" style="margin-top:14px">⚡ 모든 기기가 같은 파일을 열고 Firebase가 설정되어 있으면 실시간으로 동기화됩니다.</p>
+    </div>`;
+}
+
+// ── 전체 렌더 ─────────────────────────────────────────────────────
+function renderAll() {
+  document.querySelectorAll("#mainNav .btn").forEach(btn =>
+    btn.classList.toggle("active", btn.dataset.mode === mode)
+  );
+  document.getElementById("appTitle").textContent = state.title || "팀 미션 점수판";
+  renderDisplay();
+  renderPad();
+  renderTeacher();
+  document.getElementById("screenLabel").textContent =
+    `${mode==="display"?"공용 TV":mode==="pad"?"팀 패드":"교사용"} · ${state.stage==="intro"?"수업 초반":state.stage==="score"?"활동 화면":"마무리 화면"}`;
+}
+
+function bindTopNav() {
+  document.querySelectorAll("#mainNav .btn").forEach(btn => {
+    btn.onclick = () => setMode(btn.dataset.mode);
+  });
+}
+
+// ── 시작 ──────────────────────────────────────────────────────────
+bindTopNav();
+initFirebase();
+</script>
+</body>
+</html>
