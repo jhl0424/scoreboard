@@ -689,6 +689,16 @@ function bindTopNav() {
   document.querySelectorAll("#mainNav .btn").forEach(btn => {
     btn.onclick = () => setMode(btn.dataset.mode);
   });
+
+  // URL 파라미터로 접속한 경우 화면 전환 제한
+  const urlMode = params.get("mode");
+  if (fixedTeam) {
+    // ?team=X 로 접속 → 네비게이션 전체 숨김 (팀 패드 전용)
+    document.getElementById("mainNav").style.display = "none";
+  } else if (urlMode === "display") {
+    // ?mode=display 로 접속 → 교사용 버튼 숨김
+    document.querySelector('[data-mode="teacher"]').style.display = "none";
+  }
 }
 
 // ── 시작 ──────────────────────────────────────────────────────────
