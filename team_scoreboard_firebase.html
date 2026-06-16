@@ -688,7 +688,8 @@ function renderAll() {
   const scrollY = window.scrollY;
   const active = document.activeElement;
   const teacherEl = document.getElementById("teacherView");
-  const teacherFocused = active && teacherEl && teacherEl.contains(active);
+  const teacherFocused = active && teacherEl && teacherEl.contains(active) &&
+    (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
 
   document.querySelectorAll("#mainNav .btn").forEach(btn =>
     btn.classList.toggle("active", btn.dataset.mode === mode)
