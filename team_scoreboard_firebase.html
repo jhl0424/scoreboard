@@ -288,10 +288,10 @@ const defaultState = {
     {id:"4", name:"4팀", score:0, predicted:""},
   ],
   missions: [
-    {id:"m1", name:"제자리점프 5회",      score:2, level:"쉬움",  hint:"빠르게 여러 번 성공 가능",   icon:"jump"},
-    {id:"m2", name:"팔벌려뛰기 10회",     score:3, level:"보통",  hint:"점수와 성공률의 균형",       icon:"jack"},
-    {id:"m3", name:"한 발 균형잡기 10초", score:4, level:"보통",  hint:"시간은 걸리지만 점수 높음",  icon:"balance"},
-    {id:"m4", name:"이동+점프+착지 연결동작", score:5, level:"어려움", hint:"성공하면 큰 점수",     icon:"move"},
+    {id:"m1", name:"2번 굴러 일어나기",   score:250, level:"보통",  hint:"앞구르기 2번 연속 도전",     icon:"roll"},
+    {id:"m2", name:"팔벌려뛰기 10회",     score:100, level:"쉬움",  hint:"리듬감 있게 10번",           icon:"jack"},
+    {id:"m3", name:"균형잡고 달리기",     score:400, level:"어려움",hint:"콩주머니 떨어지면 실패!",    icon:"beanwalk"},
+    {id:"m4", name:"지그재그 달리기",     score:250, level:"보통",  hint:"라인을 빠짐없이 통과",       icon:"zigzag"},
   ],
   history: []
 };
@@ -439,11 +439,15 @@ function escapeAttr(v) { return escapeHtml(v).replace(/'/g, "&#39;"); }
 
 // ── 아이콘 ────────────────────────────────────────────────────────
 function missionIcon(icon) {
-  const c = 'fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"';
-  if (icon==="jump")    return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="62" cy="20" r="8"/><path d="M60 30L56 48L72 58"/><path d="M56 48L40 60"/><path d="M56 50L68 72"/><path d="M68 72L92 80"/><path d="M56 72L40 94"/><path d="M92 92H20"/></g></svg>`;
-  if (icon==="jack")    return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="60" cy="18" r="8"/><path d="M60 28L60 56"/><path d="M60 36L30 52"/><path d="M60 36L90 52"/><path d="M60 56L38 92"/><path d="M60 56L82 92"/></g></svg>`;
-  if (icon==="balance") return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="60" cy="18" r="8"/><path d="M60 28L60 56"/><path d="M60 36L28 48"/><path d="M60 38L88 44"/><path d="M60 56L44 84"/><path d="M60 56L78 98"/><path d="M78 98H98"/></g></svg>`;
-  return `<svg viewBox="0 0 120 120" class="mission-figure" aria-hidden="true"><g ${c}><circle cx="40" cy="20" r="8"/><path d="M40 30L36 50L54 62"/><path d="M36 50L20 60"/><path d="M54 62L72 76"/><path d="M72 76L94 64"/><path d="M72 76L86 98"/><path d="M18 102H104"/></g></svg>`;
+  const BASE = "https://jhl0424.github.io/scoreboard/";
+  const imgMap = {
+    roll:     BASE + "roll.png",
+    jack:     BASE + "jack.png",
+    beanwalk: BASE + "beanbag.png",
+    zigzag:   BASE + "run.png",
+  };
+  const src = imgMap[icon] || imgMap["jack"];
+  return `<img src="${src}" class="mission-figure" style="opacity:.28;object-fit:contain;border-radius:0;" alt="" aria-hidden="true">`;
 }
 
 function missionCard(m, variant="activity-mission") {
