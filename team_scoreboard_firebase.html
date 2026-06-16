@@ -52,7 +52,7 @@
     .mission{position:relative;overflow:hidden;border-radius:24px;background:#ffffff;padding:18px;border:1px solid #e2e8f0;min-height:122px;box-shadow:0 6px 18px rgba(15,23,42,.04)}
     .mission::before{content:"";position:absolute;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:112px!important;height:112px!important;border-radius:26px!important;background:#eaf4ff!important;opacity:.78!important;pointer-events:none}
     .mission-content{position:relative;z-index:2;display:flex;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;text-align:left!important;min-height:104px!important}
-    .mission-figure{position:absolute;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:136px!important;height:136px!important;opacity:.11!important;z-index:1;pointer-events:none;color:#2563eb!important}
+    .mission-figure{position:absolute;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:136px!important;height:136px!important;opacity:.28!important;z-index:1;pointer-events:none;color:#2563eb!important}
     .mission-text{max-width:calc(100% - 106px)!important;padding-left:0!important;text-align:left!important}
     .mission h3{font-size:22px!important;font-weight:1000;line-height:1.25!important;text-align:left!important;word-break:keep-all!important}
     .mission .sub{text-align:left!important;margin-top:6px!important;font-size:14px!important;line-height:1.35!important}
@@ -84,7 +84,7 @@
     .padBtn{width:100%;min-height:178px!important;position:relative!important;overflow:hidden!important;background:#ffffff;border:1px solid var(--line);border-radius:28px;padding:18px!important;text-align:left!important;display:block!important;box-shadow:0 8px 20px rgba(15,23,42,.05)}
     .padBtn:active{transform:scale(.98)}
     .padBtn:disabled{opacity:.45;cursor:not-allowed}
-    .padBtn .mission-figure{left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:170px!important;height:170px!important;opacity:.10!important;color:#2563eb!important}
+    .padBtn .mission-figure{left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:170px!important;height:170px!important;opacity:.28!important;color:#2563eb!important}
     .pad-card-content{position:relative;z-index:2;min-height:136px;display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%}
     .pad-text{text-align:left;max-width:calc(100% - 110px)}
     .pad-text h2{margin:0;font-size:34px!important;line-height:1.18;font-weight:1000;text-align:left!important;word-break:keep-all}
@@ -288,10 +288,10 @@ const defaultState = {
     {id:"4", name:"4팀", score:0, predicted:""},
   ],
   missions: [
-    {id:"m1", name:"2번 굴러 일어나기",   score:250, level:"보통",  hint:"앞구르기 2번 연속 도전",     icon:"roll"},
-    {id:"m2", name:"팔벌려뛰기 10회",     score:100, level:"쉬움",  hint:"리듬감 있게 10번",           icon:"jack"},
-    {id:"m3", name:"균형잡고 달리기",     score:400, level:"어려움",hint:"콩주머니 떨어지면 실패!",    icon:"beanwalk"},
-    {id:"m4", name:"지그재그 달리기",     score:250, level:"보통",  hint:"라인을 빠짐없이 통과",       icon:"zigzag"},
+    {id:"m1", name:"2번 굴러 일어나기",   score:250, level:"보통",  hint:"무릎 붙이고 둥글게! 연속 2번 성공",  icon:"roll"},
+    {id:"m2", name:"팔벌려뛰기 10회",     score:100, level:"쉬움",  hint:"팔 끝까지 뻗고 리듬감 있게 10번",   icon:"jack"},
+    {id:"m3", name:"균형잡고 달리기",     score:400, level:"어려움",hint:"콩주머니 떨어지면 실패! 시선은 위로", icon:"beanwalk"},
+    {id:"m4", name:"지그재그 달리기",     score:250, level:"보통",  hint:"모든 라인 빠짐없이 통과하기",       icon:"zigzag"},
   ],
   history: []
 };
@@ -638,9 +638,9 @@ function renderTeacher() {
             <label class="label" style="margin-top:10px">예상 점수</label>
             <input class="input" type="number" value="${escapeAttr(t.predicted)}" oninput="getTeam('${t.id}').predicted=this.value;save()">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <button class="btn" onclick="getTeam('${t.id}').score=Math.max(0,getTeam('${t.id}').score-1);save()">−1</button>
+              <button class="btn" onclick="getTeam('${t.id}').score=Math.max(0,getTeam('${t.id}').score-50);save()">−50</button>
               <strong style="font-size:26px">${t.score}점</strong>
-              <button class="btn" onclick="getTeam('${t.id}').score++;save()">+1</button>
+              <button class="btn" onclick="getTeam('${t.id}').score+=50;save()">+50</button>
             </div>
           </div>`).join("")}
         </div>
@@ -653,7 +653,7 @@ function renderTeacher() {
           <div class="teacher-plain-card">
             <div class="grid" style="grid-template-columns:1fr 90px 110px;gap:8px">
               <input class="input" value="${escapeAttr(m.name)}" oninput="state.missions[${idx}].name=this.value;save()">
-              <input class="input" type="number" value="${m.score}" oninput="state.missions[${idx}].score=Number(this.value)||0;save()">
+              <input class="input" type="number" step="50" value="${m.score}" oninput="state.missions[${idx}].score=Number(this.value)||0;save()">
               <select class="input" onchange="state.missions[${idx}].level=this.value;save()">
                 <option ${m.level==="쉬움"?"selected":""}>쉬움</option>
                 <option ${m.level==="보통"?"selected":""}>보통</option>
@@ -685,6 +685,7 @@ function renderTeacher() {
 
 // ── 전체 렌더 ─────────────────────────────────────────────────────
 function renderAll() {
+  const scrollY = window.scrollY;
   document.querySelectorAll("#mainNav .btn").forEach(btn =>
     btn.classList.toggle("active", btn.dataset.mode === mode)
   );
@@ -694,6 +695,7 @@ function renderAll() {
   renderTeacher();
   document.getElementById("screenLabel").textContent =
     `${mode==="display"?"공용 TV":mode==="pad"?"팀 패드":"교사용"} · ${state.stage==="intro"?"수업 초반":state.stage==="score"?"활동 화면":"마무리 화면"}`;
+  requestAnimationFrame(() => window.scrollTo(0, scrollY));
 }
 
 function bindTopNav() {
