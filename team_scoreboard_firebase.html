@@ -441,10 +441,10 @@ function escapeAttr(v) { return escapeHtml(v).replace(/'/g, "&#39;"); }
 function missionIcon(icon) {
   const BASE = "https://jhl0424.github.io/scoreboard/";
   const imgMap = {
-    roll:     BASE + "roll.png",
-    jack:     BASE + "jack.png",
-    beanwalk: BASE + "beanbag.png",
-    zigzag:   BASE + "run.png",
+    roll:     BASE + "roll.png.png",
+    jack:     BASE + "jack.png.png",
+    beanwalk: BASE + "beanbag.png.png",
+    zigzag:   BASE + "run.png.png",
   };
   const src = imgMap[icon] || imgMap["jack"];
   return `<img src="${src}" class="mission-figure" style="opacity:.28;object-fit:contain;border-radius:0;" alt="" aria-hidden="true">`;
